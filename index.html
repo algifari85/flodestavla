@@ -1,0 +1,147 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>The HTML5 Herald</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+
+
+  <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<style>
+		html,body{
+			width:100%;
+			height:100%;
+			margin:0;
+			padding:0;overflow:hidden;
+		}
+
+
+		.chart-p:first-child{
+			max-height:100%;
+			max-width:100%;
+		}
+		canvas{
+			width:100% !important;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class='chart-p'>
+		<canvas id="chart0" ></canvas>
+	</div>
+
+
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js'></script>
+	<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+	crossorigin="anonymous"></script>
+	<script src='PapaParse-4.3.2/papaparse.min.js'></script>
+	<script>
+		$(document).ready(function(){
+		});
+
+		
+		$.get('data/inut.csv',function(data){
+			j = Papa.parse(data,{
+				header: true
+			});
+			console.log(j)
+			labels =[]
+			dIn = []
+			dUt = []
+			dDi = []
+			for (i in j.data){
+				labels.push(j.data[i]['datum'])
+				dIn.push(parseInt(j.data[i]['inskrivna']))
+				dUt.push(parseInt(j.data[i]['utskrivna']))
+				dDi.push(parseInt(j.data[i]['direktinläggningar']))
+			}
+			d = {labels,dIn,dUt,dDi};
+			console.log(d);
+			drawChart(d,0)
+		});
+		
+		var myChart = []
+		function drawChart(chartData,n){
+			var ctx = document.getElementById("chart" + n).getContext('2d');
+			
+			myChart[n] = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: chartData.labels,
+					datasets: [{
+							label: 'Utskrivna',
+							data: chartData.dUt,
+							backgroundColor: 'rgba(41,44,68,1)',
+							borderWidth: 3
+					},
+					{
+						label: 'Inskrivna',
+						data: chartData.dIn,
+						backgroundColor: 'rgba(255,83,73,1)',
+						borderWidth: 3
+					},
+					{
+					label: 'Direktinskrivningar',
+					data: chartData.dDi,
+					backgroundColor: 'rgba(24,205,202,1)',
+					borderWidth: 3
+					}
+					]
+				},
+				options: {
+					layout: {
+						padding: {
+							left: 25,
+							right: 25,
+							top: 25,
+							bottom: 50
+						}
+					},
+					maintainAspectRatio:true,
+					title: {
+						display: true,
+						text: 'Veckans in- och utflöde MAVA 50',
+						fontSize: 64
+					}
+				}
+			});
+		}
+		
+
+		function csvJSON(csv){
+
+			var lines=csv.split("\n");
+		
+			var result = [];
+		
+			var headers=lines[0].split(";");
+		
+			for(var i=1;i<lines.length;i++){
+		
+				var obj = {};
+				var currentline=lines[i].split(";");
+		
+				for(var j=0;j<headers.length;j++){
+					obj[headers[j]] = currentline[j];
+				}
+		
+				result.push(obj);
+		
+			}
+			
+			return result; //JavaScript object
+			//return JSON.stringify(result); //JSON
+		}
+	</script>
+</body>
+</html>
